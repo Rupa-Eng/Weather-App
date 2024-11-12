@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Info</title>
+    <link rel="stylesheet" href="weather.css">
+</head>
+<body>
+    <div class="card">
+        <div class="search">
+            <input type="text" placeholder="Enter city name" spellcheck="false" id="city-input">
+            <button id="search-btn"><img src="https://w7.pngwing.com/pngs/971/479/png-transparent-search-find-loupe-magnifying-glass-magnify-zoom-lense-button-research-detect-thumbnail.png"></button>
+        </div>
+
+        <div class="weather">
+            <img src="https://cdn-icons-png.flaticon.com/512/6142/6142570.png" class="weather-icon" alt="Weather Icon" id="weather-icon">
+            <h1 class="temp">22°C</h1>
+            <h2 class="city">New York</h2>
+            <div class="details-row">
+                <div class="details">
+                    <img src="https://cdn-icons-png.flaticon.com/512/4148/4148460.png" alt="Humidity Icon">
+                    <p class="humidity">50%</p>
+                    <p>Humidity</p>
+                </div>
+                <div class="details">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRoxlSUlEj87SPLoZSzO16qH2WlQAQxUJ-yKg&s" alt="Wind Icon">
+                    <p class="wind">10 km/h</p>
+                    <p>Wind Speed</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const apikey = "1ee8cbd95f3459cfa237306c51d84101";
+        const apiurl = "https://api.openweathermap.org/data/2.5/weather?units=metric&q=";
+
+        const searchBox = document.querySelector("#city-input");
+        const searchBtn = document.querySelector("#search-btn");
+        const weatherIcon = document.getElementById("weather-icon");
+
+        async function checkWeather(city) {
+            try {
+                const response = await fetch(apiurl + city + `&appid=${apikey}`);
+                const data = await response.json();
+                
+                if (data.cod === 200) {  // City found
+                    console.log(data);
+                    document.querySelector(".city").innerHTML = data.name;
+                    document.querySelector(".temp").innerHTML = Math.round(data.main.temp) + "°C";
+                    document.querySelector(".humidity").innerHTML = data.main.humidity + "%";
+                    document.querySelector(".wind").innerHTML = data.wind.speed + " km/h";
+
+                    // Update weather icon based on the weather condition
+                    const weatherCondition = data.weather[0].main.toLowerCase();  // Get the weather condition
+                    switch (weatherCondition) {
+                        case "clouds":
+                            weatherIcon.src = "https://cdn-icons-png.flaticon.com/512/4834/4834559.png"; // Cloudy icon
+                            break;
+                        case "clear":
+                            weatherIcon.src = "https://cdn-icons-png.flaticon.com/512/3222/3222800.png"; // Clear icon
+                            break;
+                        case "rain":
+                        case "drizzle":
+                            weatherIcon.src = "https://cdn2.iconfinder.com/data/icons/weather-flat-14/64/weather07-512.png"; // Rain icon
+                            break;
+                        case "snow":
+                            weatherIcon.src = "https://cdn-icons-png.flaticon.com/512/4148/4148460.png"; // Snow icon
+                            break;
+                        default:
+                            weatherIcon.src = "https://cdn-icons-png.flaticon.com/512/6142/6142570.png"; // Default weather icon
+                    }
+                } else {
+                    alert("City not found! Please enter a valid city name.");
+                }
+            } catch (error) {
+                console.error("Error fetching weather data:", error);
+                alert("There was an error fetching the weather data. Please try again.");
+            }
+        }
+
+        // Add event listener to the search button
+        searchBtn.addEventListener("click", () => {
+            const city = searchBox.value.trim();  // Trim any extra spaces
+            if (city) {
+                checkWeather(city);
+            } else {
+                alert("Please enter a city name!");
+            }
+        });
+    </script>
+</body>
+</html>
